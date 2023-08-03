@@ -1,0 +1,88 @@
+# Deploy to Azure Kubernetes Service
+# Build and push image to Azure Container Registry; Deploy to Azure Kubernetes Service
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+- main
+
+resources:
+- repo: self
+
+variables:
+
+  # Container registry service connection established during pipeline creation
+  dockerRegistryServiceConnection: '5614fb03-0944-4526-a058-de7bed90925b'
+  imageRepository: 'mongo'
+  containerRegistry: 'dhltestregistry0103040234.azurecr.io'
+  dockerfilePath: '**/Dockerfile'
+  tag: '$(Build.BuildId)'
+  imagePullSecret: 'dhltestregistry01030402342366d99f-auth'
+
+  # Agent VM image name
+  vmImageName: 'ubuntu-latest'
+
+  # Name of the new namespace being created to deploy the PR changes.
+  k8sNamespaceForPR: 'review-app-$(System.PullRequest.PullRequestId)'
+
+stages:
+- stage: Build
+  displayName: Build stage
+  jobs:
+  - job: Build
+    displayName: Build
+    pool:
+      vmImage: $(vmImageName)
+    steps:
+    - task: Docker@2
+      displayName: Build and push an image to container registry
+      inputs:
+        containerRegistry: '$(dockerRegistryServiceConnection)'
+        repository: '$(imageRepository)'
+        command: 'push'
+        tags: |
+          $(tag)
+          latest
+    - task: PublishPipelineArtifact@1
+      inputs:
+        targetPath: '$(Pipeline.Workspace)/s/kubernetes'
+        artifact: 'manifests'
+        publishLocation: 'pipeline'
+    # - upload: manifests
+    #   artifact: manifests
+
+- stage: Deploy
+  displayName: Deploy stage
+  dependsOn: Build
+
+  jobs:
+  - deployment: Deploy
+    condition: and(succeeded(), not(startsWith(variables['Build.SourceBranch'], 'refs/pull/')))
+    displayName: Deploy
+    pool:
+      vmImage: $(vmImageName)
+    environment: 'bielajaksmongo.dhltests'
+    strategy:
+      runOnce:
+        deploy:
+          steps:
+          - task: KubernetesManifest@0
+            displayName: Create imagePullSecret
+            inputs:
+              action: createSecret
+              secretName: $(imagePullSecret)
+              dockerRegistryEndpoint: $(dockerRegistryServiceConnection)
+
+          - task: KubernetesManifest@0
+            displayName: Deploy to Kubernetes cluster
+            inputs:
+              action: deploy
+              manifests: |
+                $(Pipeline.Workspace)/manifests/azure-secret.yaml
+                $(Pipeline.Workspace)/manifests/azure-storge-class.yaml
+                $(Pipeline.Workspace)/manifests/azure-pv-pvc.yaml
+                $(Pipeline.Workspace)/manifests/aks-sfs-mongo.yaml
+              imagePullSecrets: |
+                $(imagePullSecret)
+              containers: |
+                $(containerRegistry)/$(imageRepository):$(tag)
+
