@@ -12,7 +12,7 @@ variables:
 
   # Container registry service connection established during pipeline creation
   dockerRegistryServiceConnection: '5614fb03-0944-4526-a058-de7bed90925b'
-  imageRepository: 'mongo:latest'
+  imageRepository: 'mongo'
   containerRegistry: 'dhltestregistry0103040234.azurecr.io'
   dockerfilePath: '**/Dockerfile'
   tag: '$(Build.BuildId)'
