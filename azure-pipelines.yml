@@ -37,7 +37,8 @@ stages:
       displayName: Docker pull
       inputs:
         containerRegistry: 'DHLdockerHub'
-        command: pull
+        repository: '$(imageRepository)'
+        command: 'pull'
         arguments: 'mongo:latest'
     - task: Docker@2
       displayName: Build and push an image to container registry
