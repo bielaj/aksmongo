@@ -88,10 +88,12 @@ stages:
             inputs:
               action: deploy
               manifests: |
+                $(Pipeline.Workspace)/manifests/mongodb-secret.yaml
                 $(Pipeline.Workspace)/manifests/azure-secret.yaml
                 $(Pipeline.Workspace)/manifests/azure-storge-class.yaml
                 $(Pipeline.Workspace)/manifests/azure-pv-pvc.yaml
                 $(Pipeline.Workspace)/manifests/aks-sfs-mongo.yaml
+                $(Pipeline.Workspace)/manifests/aks-sfs-mongo-express.yaml
               imagePullSecrets: |
                 $(imagePullSecret)
               containers: |
