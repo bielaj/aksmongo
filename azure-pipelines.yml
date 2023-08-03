@@ -33,26 +33,26 @@ stages:
     pool:
       vmImage: $(vmImageName)
     steps:
-    - task: Docker@2
-      displayName: Docker pull
-      inputs:
-        containerRegistry: 'DHLdockerHub'
-        repository: '$(imageRepository)'
-        command: 'pull'
-        arguments: 'mongo:latest'
-        tags: |
-          $(tag)
-          latest        
-    - task: Docker@2
-      displayName: Build and push an image to container registry
-      inputs:
-        containerRegistry: '$(dockerRegistryServiceConnection)'
-        repository: '$(imageRepository)'
-        command: 'push'
-        tags: |
-          $(tag)
-          latest
-        arguments: 'mongo:latest'
+    # - task: Docker@2
+    #   displayName: Docker pull
+    #   inputs:
+    #     containerRegistry: 'DHLdockerHub'
+    #     repository: '$(imageRepository)'
+    #     command: 'pull'
+    #     arguments: 'mongo:latest'
+    #     tags: |
+    #       $(tag)
+    #       latest        
+    # - task: Docker@2
+    #   displayName: Build and push an image to container registry
+    #   inputs:
+    #     containerRegistry: '$(dockerRegistryServiceConnection)'
+    #     repository: '$(imageRepository)'
+    #     command: 'buildAndPush'
+    #     Dockerfile: '**/mongo/Dockerfile'
+    #     tags: |
+    #       $(tag)
+    #       latest
     - task: PublishPipelineArtifact@1
       inputs:
         targetPath: '$(Pipeline.Workspace)/s/kubernetes'
