@@ -13,9 +13,9 @@ mountOptions:
 parameters:
   skuName: Standard_LRS
   location: eastus
-  storageAccount: <Azure Storage Account Name>
-  resourceGroup: <Azure Resource Group Name>
-  secretNamespace: "default"
+  storageAccount: storagedockertestdhl
+  resourceGroup: docker_tests
+  secretNamespace: "dhltests"
   secretName: azure-secret
 reclaimPolicy: Retain
 allowVolumeExpansion: true

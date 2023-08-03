@@ -13,7 +13,7 @@ spec:
   persistentVolumeReclaimPolicy: Retain
   azureFile:
     secretName: azure-secret
-    shareName: <Azure File Share Name you created>
+    shareName: dhltestfileshare
     readOnly: false
 ---
 apiVersion: v1
